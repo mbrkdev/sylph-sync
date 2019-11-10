@@ -1,7 +1,7 @@
 {
   "name": "sylph-sync",
   "bin": {
-    "sylph-sync": "./client.js"
+    "sylph-sync": "./main.js"
   },
   "version": "1.0.0",
   "main": "main.js",
