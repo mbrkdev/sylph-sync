@@ -1,0 +1,5 @@
+{
+  "ssh_user": "admin",
+  "ssh_host": "255.255.255.255",
+  "ssh_project_root": "/var/www/"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "sylph-sync",
+  "bin": {
+    "sylph-sync": "./client.js"
+  },
+  "version": "0.0.0",
+  "main": "main.js",
+  "license": "MIT",
+  "dependencies": {
+    "chokidar": "^3.3.0",
+    "nano-rgb": "^1.1.0",
+    "readline-sync": "^1.4.10",
+    "ssh2-sftp-client": "^4.2.3"
+  }
+}
