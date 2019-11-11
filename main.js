@@ -52,8 +52,11 @@ passphrase = readlineSync.question(rgb(255,0,0) + 'Enter Private Key Password: '
 });
 establishSFTPConnection();
 
-const watcher = chokidar.watch('server', {
+const ignoreList = ['node_modules', '.git']
+
+const watcher = chokidar.watch('.', {
   interval: 500,
+  ignored: (path => ignoreList.some(s => path.includes(s)))
 })
 watcher.add('package.json');
 
