@@ -9,6 +9,7 @@
   "dependencies": {
     "chokidar": "^3.3.0",
     "nano-rgb": "^1.1.0",
+    "node-ssh": "^6.0.0",
     "readline-sync": "^1.4.10",
     "ssh2-sftp-client": "^4.2.3"
   }

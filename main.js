@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 
 const {rgb, mix, reset} = require('nano-rgb')
-let Client = require('ssh2-sftp-client');
-let sftp = new Client();
+const Client = require('ssh2-sftp-client');
+const node_ssh = require('node-ssh');
+const ssh = new node_ssh()
+const sftp = new Client();
 const fs = require('fs');
 const chokidar = require('chokidar');
 const path = require('path');
 const readlineSync = require('readline-sync');
 const homedir = require('os').homedir();
+
 let passphrase = '';
 
 const configDir = path.join(process.cwd(),'sync-config.json');
@@ -36,9 +39,9 @@ function spacer(message, length) {
   while (_r.length < length) _r += ' ';
   return _r;
 }
+const {ssh_host, ssh_key, ssh_user,ssh_project_root, ssh_tail_cmd} = remoteConfig;
 
 async function establishSFTPConnection() {
-  const {ssh_host, ssh_key, ssh_user,ssh_project_root} = remoteConfig;
   try {
     await sftp.connect({
       host: ssh_host,
@@ -53,10 +56,29 @@ async function establishSFTPConnection() {
   }
   passphrase = '';
 }
+
+async function establishSSHConnection() {
+  await ssh.connect({
+    host: ssh_host,
+    username: ssh_user,
+    privateKey: ssh_key,
+    passphrase
+  })
+  ssh.exec(ssh_tail_cmd, [], {
+    cwd: ssh_project_root,
+    onStdout(chunk) {
+      process.stdout.write(chunk.toString('utf8'))
+    }
+  })
+}
+
 passphrase = readlineSync.question(theme.info + 'Enter Private Key Password: ' + reset(), { 
   hideEchoBack: true,
 });
 establishSFTPConnection();
+if(ssh_tail_cmd) {
+  establishSSHConnection();
+}
 
 const ignoreList = ['node_modules', '.git']
 
@@ -80,7 +102,7 @@ watcher.on('all', (type, changePath) => {
 
   if(!watchReady) return;
   let sanitizedPath = changePath.replace(/\\/g, '/');
-  console.log(` | ${mix(theme.success, spacer(type, 12))} >`, mix(theme.info, sanitizedPath));
+  console.log(`${mix(theme.success, '  |  ' + spacer(type.toUpperCase(), 10) + '  >')}`, mix(theme.info, sanitizedPath));
   // console.log(rootDir, sanitizedPath);
   
   // TODO: Create remote dir if it doesn't exist
