@@ -1,10 +1,6 @@
 #!/usr/bin/env node
 
 const {rgb, mix, reset} = require('nano-rgb')
-if('    $'.charAt('    $') === '$') {
-  console.log("!!!!!!");
-  
-}
 let Client = require('ssh2-sftp-client');
 let sftp = new Client();
 const fs = require('fs');
