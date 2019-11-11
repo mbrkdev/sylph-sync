@@ -14,12 +14,19 @@ let passphrase = '';
 const configDir = path.join(process.cwd(),'sync-config.json');
 const configExampleDir = path.join(__dirname,'sync-config-example.json');
 
+const theme = {
+  info: rgb(0,80,255),
+  warning: rgb(205, 205, 0),
+  error: rgb(255,0,0),
+  success: rgb(0,255,80)
+}
+
 let remoteConfig;
 try {
   remoteConfig = require(configDir);
 } catch (error) {
-  console.log(mix(rgb(255,0,0), 'Error: invalid/missing config'));
-  if(readlineSync.keyInYN(mix(rgb(0,255,80), 'Create empty config file?'))) {
+  console.log(mix(theme.error, 'Error: invalid/missing config'));
+  if(readlineSync.keyInYN(mix(theme.success, 'Create empty config file?'))) {
     fs.copyFileSync(configExampleDir, configDir);
   }
   process.exit(0)
@@ -42,12 +49,12 @@ async function establishSFTPConnection() {
       passphrase
     })
   } catch (error) {
-    console.log(mix(rgb(255,0,0), error.message));
-    return
+    console.log(mix(theme.error, error.message));
+    process.exit(0);
   }
   passphrase = '';
 }
-passphrase = readlineSync.question(rgb(255,0,0) + 'Enter Private Key Password: ' + reset(), { 
+passphrase = readlineSync.question(theme.info + 'Enter Private Key Password: ' + reset(), { 
   hideEchoBack: true,
 });
 establishSFTPConnection();
@@ -58,9 +65,13 @@ const watcher = chokidar.watch('.', {
   interval: 500,
   ignored: (path => ignoreList.some(s => path.includes(s)))
 })
-watcher.add('package.json');
 
 let watchReady = false;
+
+watcher.on('all', (type, path) => {
+  console.log(path);
+  
+})
 
 watcher.on('change', (p) => {
   if(!watchReady) return;
@@ -72,6 +83,5 @@ watcher.on('change', (p) => {
 
 watcher.on('ready', () => {
   watchReady = true;
-  console.log(mix(rgb(0,0,255), 'Watching API for changes'));
-  
+  console.log(mix(theme.info, 'Watching API for changes'));
 })
