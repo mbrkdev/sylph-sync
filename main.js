@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 
 const {rgb, mix, reset} = require('nano-rgb')
-
+if('    $'.charAt('    $') === '$') {
+  console.log("!!!!!!");
+  
+}
 let Client = require('ssh2-sftp-client');
 let sftp = new Client();
 const fs = require('fs');
@@ -68,18 +71,46 @@ const watcher = chokidar.watch('.', {
 
 let watchReady = false;
 
-watcher.on('all', (type, path) => {
-  console.log(path);
-  
-})
+let rootDir;
+const {ssh_project_root: root} = remoteConfig;
+if(root.charAt(root.length - 1) !== '/') {
+  rootDir = root + '/'
+} else {
+  rootDir = root;
+}
 
-watcher.on('change', (p) => {
+watcher.on('all', (type, changePath) => {
+  // console.log(type, changePath);
+
   if(!watchReady) return;
-  // TODO: Prettify output here
-  console.log(p);
+  let sanitizedPath = changePath.replace(/\\/g, '/');
+  console.log(` | ${mix(theme.success, spacer(type, 12))} >`, mix(theme.info, sanitizedPath));
+  // console.log(rootDir, sanitizedPath);
+  
   // TODO: Create remote dir if it doesn't exist
-  sftp.fastPut(p.replace(/\\/g, '/'), (remoteConfig.ssh_project_root + p).replace(/\\/g, '/'))
-});
+  switch (type) {
+    case 'addDir':
+      sftp.mkdir(rootDir + sanitizedPath, true);
+      break;
+    case 'change':
+      sftp.fastPut(sanitizedPath, rootDir + sanitizedPath)
+      break;
+    case 'add':
+      sftp.fastPut(sanitizedPath, rootDir + sanitizedPath)
+      break;
+    case 'unlinkDir':
+      sftp.rmdir(rootDir + sanitizedPath, true)
+      break;
+    case 'unlink':
+      sftp.delete(rootDir + sanitizedPath);
+      break;
+      
+    default:
+      console.log(type, changePath);
+      
+    break;
+  }
+})
 
 watcher.on('ready', () => {
   watchReady = true;
