@@ -22,12 +22,21 @@ npx sylph-sync # or sylph-sync
 
 If properly configured; every change in your local ```server``` folder or ```package.json``` should reflect instantly to the remote target.
 
+## Deploy
+
+In order to start the sylph-sync from a blank slate you can pass the ```--deploy``` flag, this will delete and re-create the project directory on the server. It's importand that you handle the pre- and post- deploy commands in the config file or things may not reload as expected. 
+
+Example:
+
+```js
+{
+  "pre_deploy": "pm2 delete all",
+  "post_deploy": "yarn && pm2 start main.js --watch && pm2 save"
+}
+```
+
+Between pre- and post- deploy, the entire project root is destroyed and replaced with your working directory.
+
 ## Gotchas
 
-Currently there are a few teething problems:
-
-- Directories are not created for you;
-- Additions/deletions are not handled, only changes;
-- Updates to the package.json don't force a re-install;
-
-Naturally these things are in the immediate road-map.
+- Renames are not handled;
