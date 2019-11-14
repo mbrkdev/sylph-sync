@@ -8,6 +8,7 @@
   "license": "MIT",
   "dependencies": {
     "chokidar": "^3.3.0",
+    "command-line-args": "^5.1.1",
     "nano-rgb": "^1.1.0",
     "node-ssh": "^6.0.0",
     "readline-sync": "^1.4.10",
